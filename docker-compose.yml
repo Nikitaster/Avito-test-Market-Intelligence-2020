@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  database:
+    image: postgres:latest
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'database'
+
+  api:
+    build: ./
+    command: ./docker-entrypoint.sh
+    volumes:
+    - ./:/usr/src/app/
+
+    ports:
+    - 80:80
+    - 443:443
+
+    depends_on:
+      - database
