@@ -10,9 +10,13 @@ class Searches(models.Model):
     id = fields.IntField(pk=True)
     search_phrase = fields.CharField(max_length=255, unique=True)
     region = fields.CharField(max_length=255)
+    location_id = fields.IntField(null=True, default=None)
     created_at = fields.DatetimeField(auto_now_add=True)
 
     stats: fields.ReverseRelation['Stats']
+
+    class PydanticMeta:
+        exclude = ["location_id"]
 
 
 class Stats(models.Model):
