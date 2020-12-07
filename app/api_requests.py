@@ -22,13 +22,13 @@ async def get_location_id(region: str) -> int:
                 return 0
 
 
-async def get_announcement_amount(query: str, location_id: int) -> int:
+async def get_ads_amount(query: str, location_id: int) -> int:
     """
-    This method used to gets current amount of announcements by query and location id
+    This method used to gets current amount of ads by query and location id
 
     :param query: search text
     :param location_id: location id
-    :return: announcement amount
+    :return: ads amount
     :rtype: int
     """
 

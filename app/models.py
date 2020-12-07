@@ -28,7 +28,7 @@ class Stats(models.Model):
     """
 
     id = fields.IntField(pk=True)
-    announcement_amount = fields.IntField()
+    ads_amount = fields.IntField()
     created_at = fields.DatetimeField(auto_now_add=True)
 
     search: fields.ForeignKeyRelation[Searches] = fields.ForeignKeyField(
