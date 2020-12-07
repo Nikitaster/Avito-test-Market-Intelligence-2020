@@ -1,7 +1,7 @@
 import asyncio
 
 from typing import List
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Path
 
 from tortoise.contrib.fastapi import register_tortoise
 from models import Searches, SearchesModel, SearchesModelReadonly, Stats, StatsModel
@@ -63,4 +63,10 @@ async def stats(pk: int = Query(..., gt=0),
                 ):
     stats_queryset = Stats.filter(search_id=pk, created_at__gte=from_datetime, created_at__lte=to_datetime)
     return await StatsModel.from_queryset(stats_queryset)
+
+
+@app.get('/stats/top/{search_id}', response_model=List[StatsModel])
+async def top(search_id: int = Path(..., gt=0)):
+    stats_all = Stats.filter(search_id=search_id).order_by('-announcement_amount').limit(5)
+    return await StatsModel.from_queryset(stats_all)
 
