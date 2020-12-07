@@ -1,13 +1,13 @@
+import asyncio
+
 from typing import List
 from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import RedirectResponse
 
 from tortoise.contrib.fastapi import register_tortoise
-from models import Searches, SearchesModel, SearchesModelReadonly, Stats, \
-    StatsModel, StatsModelReadonly
+from models import Searches, SearchesModel, SearchesModelReadonly, Stats, StatsModel
 
-from datetime import datetime
-from api_requests import RequesterToAPI
+from datetime import datetime, timedelta
+from api_requests import get_announcement_amount, get_location_id
 
 app = FastAPI()
 
@@ -20,9 +20,19 @@ register_tortoise(
 )
 
 
-@app.get('/')
-async def root():
-    return RedirectResponse('/docs')
+async def stats_update():
+    while True:
+        await asyncio.sleep(1)
+        searches_all = await Searches.all()
+        for search in searches_all:
+            stats_filter = await Stats.filter(search_id=search.id).order_by('-created_at').limit(1)
+            if stats_filter:
+                stat = stats_filter[0]
+                if datetime.now().timestamp() - stat.created_at.timestamp() >= 3600:
+                    announcement_amount = await get_announcement_amount(search.search_phrase, search.location_id)
+                    await Stats.create(announcement_amount=announcement_amount, search_id=search.id)
+
+asyncio.create_task(stats_update())
 
 
 @app.get('/searches/', response_model=List[SearchesModel])
@@ -30,33 +40,27 @@ async def searches():
     return await SearchesModel.from_queryset(Searches.all())
 
 
-@app.get('/searches/get/{pk}', response_model=SearchesModel)
-async def get(pk: int):
-    return await Searches.get(id=pk)
-
-
 @app.post("/add", response_model=SearchesModel)
 async def create_search(search: SearchesModelReadonly):
-    api_requests: RequesterToAPI = RequesterToAPI('af0deccbgcgidddjgnvljitntccdduijhdinfgjgfjir')
-
     search_dict = search.dict(exclude_unset=False)
     search_dict['search_phrase'] = search_dict['search_phrase'].lower()
-    search_dict['location_id'] = api_requests.get_location_id(search_dict['region'])
+    search_dict['location_id'] = await get_location_id(search_dict['region'])
 
     if not search_dict['location_id']:
         raise HTTPException(status_code=404, detail="Region not found")
 
     search_obj = await Searches.create(**search_dict)
+
+    announcement_amount = await get_announcement_amount(search_obj.search_phrase, search_obj.location_id)
+    await Stats.create(announcement_amount=announcement_amount, search_id=search_obj.id)
     return await SearchesModel.from_tortoise_orm(search_obj)
 
 
 @app.get('/stats/')
 async def stats(pk: int = Query(..., gt=0),
-                from_datetime: datetime = Query(...),
+                from_datetime: datetime = Query(datetime.now() - timedelta(days=7)),
                 to_datetime: datetime = Query(datetime.now())
                 ):
     stats_queryset = Stats.filter(search_id=pk, created_at__gte=from_datetime, created_at__lte=to_datetime)
     return await StatsModel.from_queryset(stats_queryset)
-
-
 

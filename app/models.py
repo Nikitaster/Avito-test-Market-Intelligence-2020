@@ -8,12 +8,15 @@ class Searches(models.Model):
     """
 
     id = fields.IntField(pk=True)
-    search_phrase = fields.CharField(max_length=255, unique=True)
+    search_phrase = fields.CharField(max_length=255)
     region = fields.CharField(max_length=255)
     location_id = fields.IntField(null=True, default=None)
     created_at = fields.DatetimeField(auto_now_add=True)
 
     stats: fields.ReverseRelation['Stats']
+
+    class Meta:
+        unique_together = ("search_phrase", "region")
 
     class PydanticMeta:
         exclude = ["location_id"]
@@ -37,4 +40,3 @@ SearchesModel = pydantic_model_creator(Searches, name="Searches")
 SearchesModelReadonly = pydantic_model_creator(Searches, name="SearchesIn", exclude_readonly=True)
 
 StatsModel = pydantic_model_creator(Stats, name="Stats")
-StatsModelReadonly = pydantic_model_creator(Stats, name="StatsIn", exclude_readonly=True)
