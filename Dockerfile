@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.8
 LABEL author="Nikita Gudkov nikitaster2001@gmail.com"
 
 # запрет для python на создание файлов *.pyc

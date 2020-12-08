@@ -28,7 +28,7 @@ async def stats_update():
             stats_filter = await Stats.filter(search_id=search.id).order_by('-created_at').limit(1)
             if stats_filter:
                 stat = stats_filter[0]
-                if datetime.now().timestamp() - stat.created_at.timestamp() >= 3600:
+                if datetime.utcnow().timestamp() - stat.created_at.timestamp() >= 3600:
                     ads_amount = await get_ads_amount(search.search_phrase, search.location_id)
                     await Stats.create(ads_amount=ads_amount, search_id=search.id)
 

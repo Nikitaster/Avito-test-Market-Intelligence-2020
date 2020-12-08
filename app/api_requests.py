@@ -20,7 +20,7 @@ async def get_location_id(region: str) -> int:
             for location in locations:
                 cur_location_name = location['names']['1']
                 if cur_location_name.lower() == region.lower():
-                    return cur_location_name
+                    return location['id']
             return 0
 
 
