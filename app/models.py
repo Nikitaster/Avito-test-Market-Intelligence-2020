@@ -1,6 +1,8 @@
 from tortoise import fields, models
 from tortoise.contrib.pydantic import pydantic_model_creator
 
+from datetime import datetime
+
 
 class Searches(models.Model):
     """
@@ -34,6 +36,14 @@ class Stats(models.Model):
     search: fields.ForeignKeyRelation[Searches] = fields.ForeignKeyField(
         model_name='models.Searches', related_name='stats'
     )
+
+    def created_at_timestamp(self) -> float:
+        return self.created_at.timestamp()
+
+    class PydanticMeta:
+        computed = ['created_at_timestamp']
+        exclude = ['id']
+
 
 
 SearchesModel = pydantic_model_creator(Searches, name="Searches")

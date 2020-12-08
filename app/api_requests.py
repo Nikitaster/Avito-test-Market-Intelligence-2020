@@ -15,11 +15,13 @@ async def get_location_id(region: str) -> int:
     async with aiohttp.ClientSession() as session:
         async with session.get('https://m.avito.ru/api/1/slocations',
                                params={'key': API_KEY, 'q': region}) as response:
-            locations = await response.json()
-            for cur_location in locations['result']['locations']:
-                if cur_location['names']['1'].lower() == region.lower():
-                    return cur_location['id']
-                return 0
+            response_json = await response.json()
+            locations = list(response_json['result']['locations'])
+            for location in locations:
+                cur_location_name = location['names']['1']
+                if cur_location_name.lower() == region.lower():
+                    return cur_location_name
+            return 0
 
 
 async def get_ads_amount(query: str, location_id: int) -> int:
