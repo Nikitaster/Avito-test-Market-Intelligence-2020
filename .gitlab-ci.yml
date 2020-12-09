@@ -32,3 +32,14 @@ test:
       - public/coverage
   only:
     - master
+
+pages:
+  stage: deploy
+  script:
+  - echo 'Publish pages data'
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+
