@@ -25,6 +25,8 @@ test:
     - coverage run -m pytest --disable-warnings
     - coverage report --omit=app/test_app.py -m
     - coverage html --omit=app/test_app.py
+    - mkdir public
+    - mv htmlcov public/coverage
   artifacts:
     paths:
       - public/coverage
