@@ -1,0 +1,32 @@
+image: python:3.8
+
+before_script:
+  - python -V
+  - pip install --upgrade pip
+
+stages:
+  - test
+#  - pylint
+
+test:
+  stage: test
+  services:
+    - name: postgres:13.0
+      alias: database
+  variables:
+    POSTGRES_USER: 'postgres'
+    POSTGRES_PASSWORD: 'postgres'
+    POSTGRES_DB: 'test'
+    DEBUG: "True"
+    TEST_MODE: "True"
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - coverage run -m pytest --disable-warnings
+    - coverage report --omit=app/test_app.py -m
+    - coverage html --omit=app/test_app.py -m
+  artifacts:
+    paths:
+      - public/coverage
+  only:
+    - master
