@@ -1,11 +1,13 @@
+"""This module contains the functions operating with m.avito.ru/api."""
+
 import aiohttp
 
 from conf import API_KEY
 
 
 async def get_location_id(region: str) -> int:
-    """
-    This method do request to avito api for getting location code
+    """This method makes request to avito api for getting location code.
+
     :param region: region name
     :type: int
     :return: location_id or 0 if not exist
@@ -25,17 +27,22 @@ async def get_location_id(region: str) -> int:
 
 
 async def get_ads_amount(query: str, location_id: int) -> int:
-    """
-    This method used to gets current amount of ads by query and location id
+    """This method is used to get current amount of ads by query and location id.
 
     :param query: search text
+    :type: str
     :param location_id: location id
-    :return: ads amount
+    :type: int
+    :return: ads amount for input search text and region
     :rtype: int
     """
 
     async with aiohttp.ClientSession() as session:
         async with session.get('http://m.avito.ru/api/9/items',
-                               params={'key': API_KEY, 'locationId': location_id, 'query': query}) as response:
+                               params={
+                                   'key': API_KEY,
+                                   'locationId': location_id,
+                                   'query': query}
+                               ) as response:
             result_amount = await response.json()
             return result_amount['result']['mainCount']
