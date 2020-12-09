@@ -54,3 +54,10 @@ def test_c_add_bad_region():
 
     response = client.post("/add", json={'search_phrase': 'test', 'region': 'HELLOWORLD'})
     assert response.status_code == 404, response.text
+
+
+def test_d_root_redirect():
+    """This method tests redirect from / to /docs."""
+
+    response = client.get("/")
+    assert response.status_code == 200, response.text
