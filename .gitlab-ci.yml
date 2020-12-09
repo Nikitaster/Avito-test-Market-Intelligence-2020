@@ -41,14 +41,7 @@ pylint:
     - pip install pylint-json2html==0.2.0
     - pip install anybadge==1.7.0
   script:
-    - pylint -j 0 app/*.py | tee pylint.txt
-    - mkdir public
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' pylint.txt)
-    - anybadge --value=$score --file=public/pylint.svg pylint
-    - echo "Pylint score was $score"
-    - pylint -j 0 app/*.py --output-format=jsonextended > pylint.json
-    - pylint-json2html -f jsonextended -o public/pylint.html pylint.json
-    - rm pylint.txt pylint.json
+    ./pylint_runner.sh
   artifacts:
     paths:
       - public/pylint.svg
