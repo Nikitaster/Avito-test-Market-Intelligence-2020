@@ -1,3 +1,8 @@
+[![pipeline status](https://gitlab.com/nikitaster/avito-test-market-intelligence-2020/badges/master/pipeline.svg)](https://gitlab.com/nikitaster/avito-test-market-intelligence-2020/-/commits/master)
+[![coverage report](https://gitlab.com/nikitaster/avito-test-market-intelligence-2020/badges/master/coverage.svg)](https://nikitaster.gitlab.io/avito-test-market-intelligence-2020/coverage/)
+[![pylint report](https://nikitaster.gitlab.io/avito-test-market-intelligence-2020/pylint.svg)](https://nikitaster.gitlab.io/avito-test-market-intelligence-2020/pylint.html)
+
+
 # Тестовое задание для стажера в Market Intelligence.
 
 ## Задача:
