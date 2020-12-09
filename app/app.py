@@ -6,11 +6,14 @@ from typing import List
 from datetime import datetime, timedelta
 
 from fastapi import FastAPI, Query, HTTPException, Path
+from fastapi.responses import RedirectResponse
 
 from tortoise.contrib.fastapi import register_tortoise
 from models import Searches, SearchesModel, SearchesModelReadonly, Stats, StatsModel
 
 from api_requests import get_ads_amount, get_location_id
+
+from conf import UPDATE_INTERVAL
 
 app = FastAPI()
 
@@ -21,6 +24,15 @@ register_tortoise(
     generate_schemas=True,
     add_exception_handlers=True,
 )
+
+
+@app.get('/', include_in_schema=False)
+async def root():
+    """
+    This function redirects to /docs from /
+    """
+
+    return RedirectResponse("/docs")
 
 
 @app.get('/searches/', response_model=List[SearchesModel])
@@ -105,7 +117,7 @@ async def stats_update():
             stats_filter = await Stats.filter(search_id=search.id).order_by('-created_at').limit(1)
             if stats_filter:
                 stat = stats_filter[0]
-                if datetime.utcnow().timestamp() - stat.created_at.timestamp() >= 3600:
+                if datetime.utcnow().timestamp() - stat.created_at.timestamp() >= UPDATE_INTERVAL:
                     ads_amount = await get_ads_amount(search.search_phrase, search.location_id)
                     await Stats.create(ads_amount=ads_amount, search_id=search.id)
 
