@@ -110,29 +110,15 @@ async def stats_update():
     :return: None
     """
 
-    while True:
-        await asyncio.sleep(1)
-        searches_all = await Searches.all()
-        for search in searches_all:
-            stats_filter = await Stats.filter(search_id=search.id).order_by('-created_at').limit(1)
-            if stats_filter:
-                stat = stats_filter[0]
-                if datetime.utcnow().timestamp() - stat.created_at.timestamp() >= UPDATE_INTERVAL:
-                    ads_amount = await get_ads_amount(search.search_phrase, search.location_id)
-                    await Stats.create(ads_amount=ads_amount, search_id=search.id)
+    await asyncio.sleep(1)
+    searches_all = await Searches.all()
+    for search in searches_all:
+        stats_filter = await Stats.filter(search_id=search.id).order_by('-created_at').limit(1)
+        if stats_filter:
+            stat = stats_filter[0]
+            if datetime.utcnow().timestamp() - stat.created_at.timestamp() >= UPDATE_INTERVAL:
+                ads_amount = await get_ads_amount(search.search_phrase, search.location_id)
+                await Stats.create(ads_amount=ads_amount, search_id=search.id)
+    asyncio.get_event_loop().create_task(stats_update(), name='task_update_loop')
 
-
-def stats_updater_run():
-    """Таким образом я реализовал обход ошибки в тестах 'no running event
-    loop'.
-
-    :return: None
-    """
-
-    try:
-        asyncio.create_task(stats_update())
-    except RuntimeError:
-        pass
-
-
-stats_updater_run()
+asyncio.get_event_loop().create_task(stats_update(), name='task_update_loop')
