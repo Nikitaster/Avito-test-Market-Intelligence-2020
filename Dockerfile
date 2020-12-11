@@ -10,6 +10,12 @@ ENV PYTHONUNBUFFERED 1
 #RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 
+# fix executable for widnows
+COPY ./docker-entrypoint.sh .
+RUN apt-get update && \
+    apt-get install -y dos2unix
+RUN dos2unix ./docker-entrypoint.sh
+
 # install dependencies
 RUN pip install --upgrade pip
 COPY ./requirements.txt .

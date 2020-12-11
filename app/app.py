@@ -3,7 +3,7 @@
 import asyncio
 
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from fastapi import FastAPI, Query, HTTPException, Path
 from fastapi.responses import RedirectResponse
@@ -71,8 +71,8 @@ async def create_search(search: SearchesModelReadonly):
 
 @app.get('/stat')
 async def stats(search_id: int = Query(..., gt=0),
-                from_datetime: datetime = Query(datetime.now() - timedelta(days=7)),
-                to_datetime: datetime = Query(datetime.now())
+                from_datetime: datetime = Query(datetime.fromtimestamp(0)),
+                to_datetime: datetime = Query(None, description='Format: YYYY-mm-DDTHH:MM:SS')
                 ):
     """This method provides the get method to route /stats/
 
@@ -81,12 +81,15 @@ async def stats(search_id: int = Query(..., gt=0),
     :param to_datetime: second filed of datetime interval
     :return: list of all Stats records for specified Searches record
     """
+    filters = {
+        'search_id': search_id,
+        'created_at__gte': from_datetime,
+    }
 
-    stats_queryset = Stats.filter(
-        search_id=search_id,
-        created_at__gte=from_datetime,
-        created_at__lte=to_datetime
-    )
+    if to_datetime:
+        filters['created_at__lte'] = to_datetime
+
+    stats_queryset = Stats.filter(**filters)
     return await StatsModel.from_queryset(stats_queryset)
 
 
